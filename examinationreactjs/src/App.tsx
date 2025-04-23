@@ -37,7 +37,8 @@ const App: React.FC = () => {
         category: newProductCategory,
         stock: parseInt(newProductStock),
       };
-      setProducts([...products, newProduct]);
+      // Thêm sản phẩm mới vào đầu mảng
+      setProducts([newProduct, ...products]);
       setNewProductName('');
       setNewProductPrice('');
       setNewProductCategory('');
