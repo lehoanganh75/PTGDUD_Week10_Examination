@@ -23,9 +23,12 @@ const App: React.FC = () => {
   const [newProductCategory, setNewProductCategory] = useState('');
   const [newProductStock, setNewProductStock] = useState('');
   const [nextId, setNextId] = useState(products.length + 1);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filteredProducts, setFilteredProducts] = useState(products);
 
   const handleDeleteProduct = (id: number) => {
     setProducts(products.filter((product) => product.id !== id));
+    setFilteredProducts(filteredProducts.filter((product) => product.id !== id));
   };
 
   const handleAddProduct = () => {
@@ -37,14 +40,25 @@ const App: React.FC = () => {
         category: newProductCategory,
         stock: parseInt(newProductStock),
       };
-      // Thêm sản phẩm mới vào đầu mảng
       setProducts([newProduct, ...products]);
+      setFilteredProducts([newProduct, ...filteredProducts]);
       setNewProductName('');
       setNewProductPrice('');
       setNewProductCategory('');
       setNewProductStock('');
       setNextId(nextId + 1);
     }
+  };
+
+  const handleSearchInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(event.target.value);
+  };
+
+  const handleSearchButtonClick = () => {
+    const results = products.filter((product) =>
+      product.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    setFilteredProducts(results);
   };
 
   return (
@@ -54,6 +68,7 @@ const App: React.FC = () => {
       {/* Form thêm sản phẩm */}
       <div className="mb-6 p-4 bg-gray-100 rounded-md shadow-sm">
         <h2 className="text-lg font-semibold mb-2 text-gray-700">Thêm sản phẩm mới</h2>
+        {/* ... (phần form thêm sản phẩm giữ nguyên) ... */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label htmlFor="name" className="block text-gray-700 text-sm font-bold mb-2">Tên sản phẩm:</label>
@@ -104,8 +119,27 @@ const App: React.FC = () => {
         </button>
       </div>
 
+      {/* Ô tìm kiếm và nút */}
+      <div className="mb-4 flex items-center">
+        <label htmlFor="search" className="block text-gray-700 text-sm font-bold mr-2">Tìm kiếm theo tên:</label>
+        <input
+          type="text"
+          id="search"
+          className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline mr-2"
+          placeholder="Nhập tên sản phẩm"
+          value={searchTerm}
+          onChange={handleSearchInputChange}
+        />
+        <button
+          onClick={handleSearchButtonClick}
+          className="bg-blue-500 hover:bg-blue-700 focus:outline-none focus:shadow-outline text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out"
+        >
+          Tìm kiếm
+        </button>
+      </div>
+
       {/* Danh sách sản phẩm */}
-      <ProductList products={products} onDelete={handleDeleteProduct} />
+      <ProductList products={filteredProducts} onDelete={handleDeleteProduct} />
     </div>
   );
 };
