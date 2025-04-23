@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import ProductList from './components/ProductList';
 import './index.css';
 
@@ -30,11 +30,19 @@ const App: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
   const [filteredProducts, setFilteredProducts] = useState(initialProducts);
+  const [totalProducts, setTotalProducts] = useState(initialProducts.length);
+  const [totalStock, setTotalStock] = useState(initialProducts.reduce((sum, product) => sum + product.stock, 0));
 
   const categories = ['Tất cả', ...new Set(initialProducts.map((product) => product.category))];
 
+  useEffect(() => {
+    setTotalProducts(filteredProducts.length);
+    setTotalStock(filteredProducts.reduce((sum, product) => sum + product.stock, 0));
+  }, [filteredProducts]);
+
   const handleDeleteProduct = (id: number) => {
-    setProducts(products.filter((product) => product.id !== id));
+    const updatedProducts = products.filter((product) => product.id !== id);
+    setProducts(updatedProducts);
     setFilteredProducts(filteredProducts.filter((product) => product.id !== id));
   };
 
@@ -47,7 +55,8 @@ const App: React.FC = () => {
         category: newProductCategory,
         stock: parseInt(newProductStock),
       };
-      setProducts([newProduct, ...products]);
+      const updatedProducts = [newProduct, ...products];
+      setProducts(updatedProducts);
       setFilteredProducts([newProduct, ...filteredProducts]);
       setNewProductName('');
       setNewProductPrice('');
@@ -59,6 +68,7 @@ const App: React.FC = () => {
 
   const handleSearchInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(event.target.value);
+    filterProducts(event.target.value, selectedCategory);
   };
 
   const handleSearchButtonClick = () => {
@@ -95,7 +105,6 @@ const App: React.FC = () => {
       <div className="mb-6 p-4 bg-gray-100 rounded-md shadow-sm">
         <h2 className="text-lg font-semibold mb-2 text-gray-700">Thêm sản phẩm mới</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* Các input thêm sản phẩm (giữ nguyên) */}
           <div>
             <label htmlFor="name" className="block text-gray-700 text-sm font-bold mb-2">Tên sản phẩm:</label>
             <input
@@ -182,6 +191,13 @@ const App: React.FC = () => {
             ))}
           </select>
         </div>
+      </div>
+
+      {/* Thống kê tổng số sản phẩm và tồn kho */}
+      <div className="mb-4">
+        <p className="text-gray-700">
+          Tổng sản phẩm: <span className="font-semibold">{totalProducts}</span> | Tổng tồn kho: <span className="font-semibold">{totalStock}</span>
+        </p>
       </div>
 
       {/* Danh sách sản phẩm */}
