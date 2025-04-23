@@ -11,20 +11,27 @@ interface Product {
 }
 
 const App: React.FC = () => {
-  const [products, setProducts] = useState<Product[]>([
+  const initialProducts: Product[] = [
     { id: 1, name: 'Áo thun basic', price: 25.99, category: 'Thời trang', stock: 50 },
     { id: 2, name: 'Quần jeans', price: 59.50, category: 'Thời trang', stock: 30 },
-    { id: 3, name: 'Laptop Dell XPS 15', price: 1299.99, category: 'Điện tử', stock: 15 },
-    { id: 4, name: 'Chuột không dây Logitech', price: 29.95, category: 'Phụ kiện', stock: 100 },
-  ]);
+    { id: 3, name: 'Laptop Dell XPS 15', price: 1299.99, category: 'Công nghệ', stock: 15 },
+    { id: 4, name: 'Chuột không dây Logitech', price: 29.95, category: 'Công nghệ', stock: 100 },
+    { id: 5, name: 'Máy giặt Samsung', price: 499.00, category: 'Gia dụng', stock: 20 },
+    { id: 6, name: 'Nồi cơm điện Sharp', price: 79.50, category: 'Gia dụng', stock: 35 },
+    { id: 7, name: 'Áo sơ mi trắng', price: 39.99, category: 'Thời trang', stock: 40 },
+  ];
 
+  const [products, setProducts] = useState(initialProducts);
   const [newProductName, setNewProductName] = useState('');
   const [newProductPrice, setNewProductPrice] = useState('');
   const [newProductCategory, setNewProductCategory] = useState('');
   const [newProductStock, setNewProductStock] = useState('');
   const [nextId, setNextId] = useState(products.length + 1);
   const [searchTerm, setSearchTerm] = useState('');
-  const [filteredProducts, setFilteredProducts] = useState(products);
+  const [selectedCategory, setSelectedCategory] = useState('');
+  const [filteredProducts, setFilteredProducts] = useState(initialProducts);
+
+  const categories = ['Tất cả', ...new Set(initialProducts.map((product) => product.category))];
 
   const handleDeleteProduct = (id: number) => {
     setProducts(products.filter((product) => product.id !== id));
@@ -55,9 +62,28 @@ const App: React.FC = () => {
   };
 
   const handleSearchButtonClick = () => {
-    const results = products.filter((product) =>
-      product.name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    filterProducts(searchTerm, selectedCategory);
+  };
+
+  const handleCategoryChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const category = event.target.value;
+    setSelectedCategory(category);
+    filterProducts(searchTerm, category);
+  };
+
+  const filterProducts = (search: string, category: string) => {
+    let results = initialProducts;
+
+    if (search) {
+      results = results.filter((product) =>
+        product.name.toLowerCase().includes(search.toLowerCase())
+      );
+    }
+
+    if (category && category !== 'Tất cả') {
+      results = results.filter((product) => product.category === category);
+    }
+
     setFilteredProducts(results);
   };
 
@@ -68,8 +94,8 @@ const App: React.FC = () => {
       {/* Form thêm sản phẩm */}
       <div className="mb-6 p-4 bg-gray-100 rounded-md shadow-sm">
         <h2 className="text-lg font-semibold mb-2 text-gray-700">Thêm sản phẩm mới</h2>
-        {/* ... (phần form thêm sản phẩm giữ nguyên) ... */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Các input thêm sản phẩm (giữ nguyên) */}
           <div>
             <label htmlFor="name" className="block text-gray-700 text-sm font-bold mb-2">Tên sản phẩm:</label>
             <input
@@ -119,23 +145,43 @@ const App: React.FC = () => {
         </button>
       </div>
 
-      {/* Ô tìm kiếm và nút */}
-      <div className="mb-4 flex items-center">
-        <label htmlFor="search" className="block text-gray-700 text-sm font-bold mr-2">Tìm kiếm theo tên:</label>
-        <input
-          type="text"
-          id="search"
-          className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline mr-2"
-          placeholder="Nhập tên sản phẩm"
-          value={searchTerm}
-          onChange={handleSearchInputChange}
-        />
-        <button
-          onClick={handleSearchButtonClick}
-          className="bg-blue-500 hover:bg-blue-700 focus:outline-none focus:shadow-outline text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out"
-        >
-          Tìm kiếm
-        </button>
+      {/* Tìm kiếm và Lọc */}
+      <div className="mb-4 flex items-center gap-4">
+        {/* Tìm kiếm */}
+        <div className="flex items-center">
+          <label htmlFor="search" className="block text-gray-700 text-sm font-bold mr-2">Tìm kiếm theo tên:</label>
+          <input
+            type="text"
+            id="search"
+            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline mr-2"
+            placeholder="Nhập tên sản phẩm"
+            value={searchTerm}
+            onChange={handleSearchInputChange}
+          />
+          <button
+            onClick={handleSearchButtonClick}
+            className="bg-blue-500 hover:bg-blue-700 focus:outline-none focus:shadow-outline text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out"
+          >
+            Tìm kiếm
+          </button>
+        </div>
+
+        {/* Lọc theo danh mục */}
+        <div className="flex items-center">
+          <label htmlFor="categoryFilter" className="block text-gray-700 text-sm font-bold mr-2">Lọc theo danh mục:</label>
+          <select
+            id="categoryFilter"
+            className="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            value={selectedCategory}
+            onChange={handleCategoryChange}
+          >
+            {categories.map((cat) => (
+              <option key={cat} value={cat}>
+                {cat}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
 
       {/* Danh sách sản phẩm */}
