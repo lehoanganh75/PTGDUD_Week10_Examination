@@ -10,8 +10,11 @@ interface Product {
   stock: number;
 }
 
+const LOCAL_STORAGE_KEY = 'product_list';
+
 const App: React.FC = () => {
-  const initialProducts: Product[] = [
+  const storedProducts = localStorage.getItem(LOCAL_STORAGE_KEY);
+  const initialProducts: Product[] = storedProducts ? JSON.parse(storedProducts) : [
     { id: 1, name: 'Áo thun basic', price: 25.99, category: 'Thời trang', stock: 50 },
     { id: 2, name: 'Quần jeans', price: 59.50, category: 'Thời trang', stock: 30 },
     { id: 3, name: 'Laptop Dell XPS 15', price: 1299.99, category: 'Công nghệ', stock: 15 },
@@ -26,7 +29,7 @@ const App: React.FC = () => {
   const [newProductPrice, setNewProductPrice] = useState('');
   const [newProductCategory, setNewProductCategory] = useState('');
   const [newProductStock, setNewProductStock] = useState('');
-  const [nextId, setNextId] = useState(products.length + 1);
+  const [nextId, setNextId] = useState(initialProducts.length > 0 ? Math.max(...initialProducts.map(p => p.id)) + 1 : 1);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
   const [filteredProducts, setFilteredProducts] = useState(initialProducts);
@@ -36,9 +39,11 @@ const App: React.FC = () => {
   const categories = ['Tất cả', ...new Set(initialProducts.map((product) => product.category))];
 
   useEffect(() => {
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(products));
+    console.log("Danh sách sản phẩm hiện tại:", products);
     setTotalProducts(filteredProducts.length);
     setTotalStock(filteredProducts.reduce((sum, product) => sum + product.stock, 0));
-  }, [filteredProducts]);
+  }, [products, filteredProducts]);
 
   const handleDeleteProduct = (id: number) => {
     const updatedProducts = products.filter((product) => product.id !== id);
