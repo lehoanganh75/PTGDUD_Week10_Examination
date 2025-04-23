@@ -1,35 +1,32 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+import React, { useState } from 'react';
+import ProductList from './components/ProductList';
 import './index.css'
 
-function App() {
-  const [count, setCount] = useState(0)
-
-  return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+interface Product {
+  id: number;
+  name: string;
+  price: number;
+  category: string;
+  stock: number;
 }
 
-export default App
+const App: React.FC = () => {
+  const [products, setProducts] = useState<Product[]>([
+    { id: 1, name: 'Áo thun basic', price: 25.99, category: 'Thời trang', stock: 50 },
+    { id: 2, name: 'Quần jeans', price: 59.50, category: 'Thời trang', stock: 30 },
+    { id: 3, name: 'Laptop Dell XPS 15', price: 1299.99, category: 'Điện tử', stock: 15 },
+    { id: 4, name: 'Chuột không dây Logitech', price: 29.95, category: 'Phụ kiện', stock: 100 },
+  ]);
+
+  const handleDeleteProduct = (id: number) => {
+    setProducts(products.filter((product) => product.id !== id));
+  };
+
+  return (
+    <div>
+      <ProductList products={products} onDelete={handleDeleteProduct} />
+    </div>
+  );
+};
+
+export default App;
