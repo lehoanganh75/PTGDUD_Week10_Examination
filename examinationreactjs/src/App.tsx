@@ -163,7 +163,7 @@ const App: React.FC = () => {
       <div className="mb-4 flex items-center gap-4">
         {/* Tìm kiếm */}
         <div className="flex items-center">
-          <label htmlFor="search" className="block text-gray-700 text-sm font-bold mr-2">Tìm kiếm theo tên:</label>
+          <label htmlFor="search" className="block text-gray-700 text-sm font-bold mr-2">Tìm kiếm:</label>
           <input
             type="text"
             id="search"
